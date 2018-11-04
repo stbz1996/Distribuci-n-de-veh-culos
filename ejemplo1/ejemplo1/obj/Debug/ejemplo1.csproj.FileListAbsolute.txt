@@ -1,0 +1,7 @@
+C:\Users\stbz1\Desktop\Distribucion-de-vehiculos\ejemplo1\ejemplo1\bin\Debug\ejemplo1.exe.config
+C:\Users\stbz1\Desktop\Distribucion-de-vehiculos\ejemplo1\ejemplo1\bin\Debug\ejemplo1.exe
+C:\Users\stbz1\Desktop\Distribucion-de-vehiculos\ejemplo1\ejemplo1\bin\Debug\ejemplo1.pdb
+C:\Users\stbz1\Desktop\Distribucion-de-vehiculos\ejemplo1\ejemplo1\obj\Debug\ejemplo1.csprojAssemblyReference.cache
+C:\Users\stbz1\Desktop\Distribucion-de-vehiculos\ejemplo1\ejemplo1\obj\Debug\ejemplo1.csproj.CoreCompileInputs.cache
+C:\Users\stbz1\Desktop\Distribucion-de-vehiculos\ejemplo1\ejemplo1\obj\Debug\ejemplo1.exe
+C:\Users\stbz1\Desktop\Distribucion-de-vehiculos\ejemplo1\ejemplo1\obj\Debug\ejemplo1.pdb
