@@ -12,6 +12,7 @@ namespace ejemplo1
         private int tiempoRestante;
         private List<char> tiposVehiculos;
         private bool activa;
+        private int numVehiculosAsignados;
 
         public Linea(int pTiempoAtencion, List<char> pTiposVehiculos, bool pActiva)
         {
@@ -19,11 +20,22 @@ namespace ejemplo1
             this.tiposVehiculos = pTiposVehiculos;
             this.activa         = pActiva;
             this.tiempoRestante = this.tiempoAtencion;
+            this.numVehiculosAsignados = 0;
         }
 
         public List<char> getTiposVehiculos()
         {
             return this.tiposVehiculos;
+        }
+
+        public void IncrementarVehiculos()
+        {
+            this.numVehiculosAsignados += 1;
+        }
+
+        public void DecrementarVehiculos()
+        {
+            this.numVehiculosAsignados -= 1;
         }
 
         public void RestarTiempo(int pTiempo)

@@ -96,7 +96,7 @@ namespace ejemplo1
         {
             // debe limpiar las lineas y volver a las originales 
             // Seleccion
-            // cruze
+            // cruce
             // mutacion 
         }
 
@@ -157,6 +157,7 @@ namespace ejemplo1
                             {
                                 tempVehiculo.SetLineaAsignada(l);  
                                 l.RestarTiempo(tempVehiculo.GetTiempo());
+                                l.IncrementarVehiculos();
                                 asignado = true;
                                 break;
                             }
@@ -170,6 +171,7 @@ namespace ejemplo1
                         {
                             tempVehiculo.SetLineaAsignada(tempMenorLinea); // coloca la linea al vehiculo
                             tempMenorLinea.RestarTiempo(tempVehiculo.GetTiempo()); // resto el tiempo del vehiculo de la linea
+                            tempMenorLinea.IncrementarVehiculos();
                         }
                     }
                     
@@ -212,11 +214,28 @@ namespace ejemplo1
                 - o se acaban los vehiculos
                 - Si la linea con menor capacidad es < que 120 
                     - Esa lineas debe estar llena o no deben haber más vehiculos para esa linea
-                    - El maximo para las demás lineas es de 120
+                    - El maximo para las demás lineas es de 120 o el maximo de la linea si es < a 120
                     - El minimo de las demás lineas será la capacidad de la peor linea 
                 - Si no
                     - El maximo de las demas lineas será la capacidad de la peor linea mas un rango (20)
-            */
+        
+
+
+            OPCION 2 
+            - El máximo de asignado a cada linea debe ser igual, mayor o menor a la capacidad
+              de la linea más pequeña mas un rango de 20. 
+            - Si no
+                - Se debe ver si la linea tiene mas de un vehiculo. 
+                    - si tiene mas de un vehoculo entonces se rechaza 
+            - Si se cumple lo anterior
+                - la linea mas pequeña debe estar llena o casi llena (-10 del valor total)
+                - Si no
+                    - se debe verificar si hay vehiculos que pudieron entrar ahi
+                        - si hay vehuclos que pudieron entrar entonces se rechaza 
+            - Si se cumple todo lo anterior, es una solución válida.
+
+
+             */
 
             if (generation == this.numGenerations - 1)
             {
