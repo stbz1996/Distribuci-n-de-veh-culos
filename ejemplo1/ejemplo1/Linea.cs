@@ -26,6 +26,11 @@ namespace ejemplo1
             return this.tiposVehiculos;
         }
 
+        public void RestarTiempo(int pTiempo)
+        {
+            this.tiempoRestante -= pTiempo;
+        }
+
         public int GetTiempoRestante()
         {
             return this.tiempoRestante;
@@ -44,6 +49,11 @@ namespace ejemplo1
         public void SetActiva(bool val)
         {
             this.activa = val;
+        }
+
+        public void RestablecerTiemporestante()
+        {
+            this.tiempoRestante = this.tiempoAtencion;
         }
     }
 }
