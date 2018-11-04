@@ -111,6 +111,10 @@ namespace ejemplo1
             {
                 l.RestablecerTiemporestante();
             }
+            foreach(vehiculo v in this.listaEspera)
+            {
+                v.SetLineaAsignada(null);
+            }
 
             // Ordena la lista de menor a mayor segun las probabilidades del vehiculo 
             IEnumerable<vehiculo> sorted   = poblacion.GetVehiculos().OrderBy(x => x.GetProbAsignado());
@@ -161,7 +165,8 @@ namespace ejemplo1
                                 asignado = true;
                                 break;
                             }
-                            if (tempMenorLinea.GetTiempoRestante() < l.GetTiempoRestante())
+                            int tiempoAsignado = tempMenorLinea.GetTiempoAtencion() - tempMenorLinea.GetTiempoRestante();
+                            if (tiempoAsignado > (l.GetTiempoAtencion() - l.GetTiempoRestante()))
                             {
                                 tempMenorLinea = l;
                             }
@@ -175,7 +180,7 @@ namespace ejemplo1
                         }
                     }
                     
-                    /*
+                    
                     Console.WriteLine("El vehiculo: " + tempVehiculo.GetId());
                     Console.WriteLine("Puede entrar en las lineas: ");
                     foreach (Linea l in tempLineas)
@@ -186,7 +191,7 @@ namespace ejemplo1
                     }
                     Console.WriteLine("--------------------------------------");
                     Console.WriteLine("--------------------------------------");
-                    */
+                    
                 }
             }
         }
@@ -199,28 +204,72 @@ namespace ejemplo1
         ****************************************************************/
         public bool Fitness(Poblacion poblacion, int generation)
         {
-            // Ver si se acepta o no y se le da una puntuación
+            if (generation == this.numGenerations - 1)
+            {
+                return true;
+            }
+
+            // Busca la linea con menor capacidad
+            int maximoValorPorLinea = this.lineas.ElementAt(0).GetTiempoAtencion();
+            Linea lineaConMenoCapacidad = this.lineas.ElementAt(0);
+            foreach(Linea l in this.lineas)
+            {
+                int cargaActual = l.GetTiempoAtencion();
+                if (cargaActual < maximoValorPorLinea)
+                {
+                    maximoValorPorLinea = cargaActual;
+                    lineaConMenoCapacidad = l;
+                }
+            }
+
+            // Busca si alguna linea se pasa del rango 
+            int rango = maximoValorPorLinea + 20;
+            foreach (Linea l in this.lineas)
+            {
+                // Si la linea se pasa del rango 
+                int tiempoAsignado = l.GetTiempoAtencion() - l.GetTiempoRestante();
+                if (tiempoAsignado > rango)
+                {
+                    // Hay que buscar el porqué
+                    if (l.GetNumVehiculosAsignados() > 1)
+                    {
+                        // No puede darse este caso, hay que poner la penalización 
+                        Console.WriteLine("La linea está muy llena y tiene mas de un vehiculo");
+                        return false;
+                    }
+                }
+            }
+
+            // se debe ver que cada linea esté en el rango
+            foreach (Linea l in this.lineas)
+            {
+                foreach(vehiculo v in this.listaEspera)
+                {
+                    // Si el vehiculo no fue asignado
+                    if (v.GetLineaAsignada() == null)
+                    {
+                        int nuevotiempoTotal = l.GetTiempoRestante() - v.GetTiempo();
+                        if (nuevotiempoTotal <= rango)
+                        {
+                            // si no se sale del rango, hay que penalizar 
+                            Console.WriteLine("Se pudo haber ingresado el vehiculo: " + v.GetId());
+                            return false;
+                        }
+                    }
+                }
+            }
+          
+            return true;
+
+           
 
 
-            /*  
-            500  |  300  |  30   | 100 | 50  | Tiempo total    (tt)
-            400  |  200  |  0    | 30  | 10  | Tiempo restante (tr)
-            110  |  100  |  30   | 70  | 40  | tt - tr
-            --------------------------------------------------------
-            20%  |  33%  |  100% | 70% | 80% | % de que tan llena quedó la linea 
+            // Si llega aqui, es una solucion valida 
+
+           
 
 
-            CONDICIONES
-                - o se acaban los vehiculos
-                - Si la linea con menor capacidad es < que 120 
-                    - Esa lineas debe estar llena o no deben haber más vehiculos para esa linea
-                    - El maximo para las demás lineas es de 120 o el maximo de la linea si es < a 120
-                    - El minimo de las demás lineas será la capacidad de la peor linea 
-                - Si no
-                    - El maximo de las demas lineas será la capacidad de la peor linea mas un rango (20)
-        
-
-
+            /*
             OPCION 2 
             - El máximo de asignado a cada linea debe ser igual, mayor o menor a la capacidad
               de la linea más pequeña mas un rango de 20. 
@@ -233,15 +282,9 @@ namespace ejemplo1
                     - se debe verificar si hay vehiculos que pudieron entrar ahi
                         - si hay vehuclos que pudieron entrar entonces se rechaza 
             - Si se cumple todo lo anterior, es una solución válida.
-
-
              */
 
-            if (generation == this.numGenerations - 1)
-            {
-                return true;
-            }
-            return false;
+          
         }
 
 
