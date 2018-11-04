@@ -27,6 +27,11 @@ namespace ejemplo1
             return this.lineas;
         }
 
+        public void SetVehiculos(List<vehiculo> list)
+        {
+            this.vehiculos = list;
+        }
+
 
     }
 }

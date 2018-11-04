@@ -18,13 +18,19 @@ namespace ejemplo1
             l1.Add('a'); l1.Add('b'); l1.Add('c');
             List<char> l2 = new List<char>();
             l2.Add('a');
-            config.AgregarLinea(100, l1, true);
+            List<char> l3 = new List<char>();
+            l3.Add('a');
+            config.AgregarLinea(200, l1, true);
             config.AgregarLinea(100, l2, true);
-            
+            config.AgregarLinea(300, l3, true);
+
             // Creo los vehiculos 
-            config.AgregarVehiculoEnEspera(1, 'a', 10);
             config.AgregarVehiculoEnEspera(2, 'b', 10);
-            config.AgregarVehiculoEnEspera(3, 'c', 15);
+            config.AgregarVehiculoEnEspera(1, 'a', 10);
+            config.AgregarVehiculoEnEspera(3, 'a', 15);
+            config.AgregarVehiculoEnEspera(4, 'a', 20);
+            config.AgregarVehiculoEnEspera(5, 'a', 30);
+
 
             // Inicio la asignación
             config.GenerarPoblacionInicial();
