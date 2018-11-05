@@ -23,6 +23,7 @@ namespace ejemplo1
             List<char> l3 = new List<char>();
             l3.Add('a');
             l3.Add('b');
+            l3.Add('c');
             config.AgregarLinea(200, l1, true);
             config.AgregarLinea(100, l2, true);
             config.AgregarLinea(300, l3, true);
