@@ -258,13 +258,29 @@ namespace ejemplo1
                     }
                 }
             }
-          
+
+
+            // obtengo la que se le asignó menor carga
+            int menorCarga = lineaConMenoCapacidad.GetTiempoAtencion() - lineaConMenoCapacidad.GetTiempoRestante();
+            foreach(Linea l in this.lineas)
+            {
+                int cargaAsignada = (l.GetTiempoAtencion() - l.GetTiempoRestante());
+                if ((menorCarga + rango) < cargaAsignada )
+                {
+                    Console.WriteLine("La linea: " + l.GetTiempoAtencion() + " se pasó del rango que era: " + menorCarga + rango);
+                    return false;
+                }
+            }
+                
+
+
+            // Si llega aqui, es una solucion valida
             return true;
 
            
 
 
-            // Si llega aqui, es una solucion valida 
+             
 
            
 

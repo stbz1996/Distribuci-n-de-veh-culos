@@ -19,21 +19,26 @@ namespace ejemplo1
             l1.Add('b');
             l1.Add('c');
             List<char> l2 = new List<char>();
-            l2.Add('a');
+            l2.Add('c');
             List<char> l3 = new List<char>();
             l3.Add('a');
             l3.Add('b');
             config.AgregarLinea(200, l1, true);
             config.AgregarLinea(100, l2, true);
             config.AgregarLinea(300, l3, true);
-
             // Creo los vehiculos 
-            config.AgregarVehiculoEnEspera(2, 'b', 10);
-            config.AgregarVehiculoEnEspera(1, 'a', 10);
-            config.AgregarVehiculoEnEspera(3, 'c', 15);
-            config.AgregarVehiculoEnEspera(4, 'a', 20);
-            config.AgregarVehiculoEnEspera(5, 'a', 30);
-
+            config.AgregarVehiculoEnEspera(1, 'b', 20);
+            config.AgregarVehiculoEnEspera(2, 'a', 30);
+            config.AgregarVehiculoEnEspera(3, 'c', 60);
+            config.AgregarVehiculoEnEspera(4, 'a', 40);
+            config.AgregarVehiculoEnEspera(5, 'a', 60);
+            config.AgregarVehiculoEnEspera(6, 'b', 40);
+            config.AgregarVehiculoEnEspera(7, 'c', 30);
+            config.AgregarVehiculoEnEspera(8, 'c', 20);
+            config.AgregarVehiculoEnEspera(9, 'b', 120);
+            config.AgregarVehiculoEnEspera(10, 'a', 80);
+            config.AgregarVehiculoEnEspera(11, 'a', 100);
+            config.AgregarVehiculoEnEspera(12, 'c', 100);
 
             // Inicio la asignación
             config.GenerarPoblacionInicial();
