@@ -200,45 +200,15 @@ namespace ejemplo1
         // Busca la linea con menor capacidad
         private Linea GetLineaConMenoCapacidad()
         {
-            // Ordena la lista de menor a mayor segun las probabilidades del vehiculo 
             IEnumerable<Linea> sorted = this.poblacion.GetLineas().OrderBy(x => (x.GetTiempoAtencion() - x.GetTiempoRestante()));
             List<Linea> temp = new List<Linea>();
-            Console.WriteLine("@@");
-            Console.WriteLine("Menor linea es: " + sorted.ElementAt(0).GetTiempoAtencion());
-            Console.WriteLine("@@");
-
             return sorted.ElementAt(0);
         }
 
 
-        /****************************************************************
-        Evalua si la población es buena o no                            *
-        Retorna True si la población cumple con las caracteristicas     *
-        Retorna False si la población no cumple con las caracteristicas *
-        ****************************************************************/
-        public bool Fitness(Poblacion poblacion, int generation)
+        private bool LineasFueraDeRango(int rango)
         {
-            if (generation == this.numGenerations - 1)
-            {
-                return true;
-            }
-
-            // Busca la linea con menor capacidad
-            int maximoValorPorLinea = this.lineas.ElementAt(0).GetTiempoAtencion();
-            Linea lineaConMenoCapacidad = this.GetLineaConMenoCapacidad();
-            foreach(Linea l in this.lineas)
-            {
-                int cargaActual = l.GetTiempoAtencion();
-                if (cargaActual < maximoValorPorLinea)
-                {
-                    maximoValorPorLinea = cargaActual;
-                    //lineaConMenoCapacidad = l;
-                }
-            }
-
-            // Busca si alguna linea se pasa del rango 
-            int rango = maximoValorPorLinea + 20;
-            foreach (Linea l in this.lineas)
+            foreach (Linea l in this.poblacion.GetLineas())
             {
                 // Si la linea se pasa del rango 
                 int tiempoAsignado = l.GetTiempoAtencion() - l.GetTiempoRestante();
@@ -253,11 +223,15 @@ namespace ejemplo1
                     }
                 }
             }
+            return true;
+        }
 
-            // se debe ver que cada linea esté en el rango
-            foreach (Linea l in this.lineas)
+
+        private bool LineasenRango(int rango)
+        {
+            foreach (Linea l in this.poblacion.GetLineas())
             {
-                foreach(vehiculo v in this.listaEspera)
+                foreach (vehiculo v in this.listaEspera)
                 {
                     // Si el vehiculo no fue asignado
                     if (v.GetLineaAsignada() == null)
@@ -272,20 +246,64 @@ namespace ejemplo1
                     }
                 }
             }
+            return true;
+        }
 
-            // obtengo la que se le asignó menor carga
-            int menorCarga = lineaConMenoCapacidad.GetTiempoAtencion() - lineaConMenoCapacidad.GetTiempoRestante();
-            foreach(Linea l in this.lineas)
+
+        private bool VerificarEquivalencia(int mayorCargaPosible)
+        {
+            foreach (Linea l in this.lineas)
             {
                 int cargaAsignada = (l.GetTiempoAtencion() - l.GetTiempoRestante());
-                if ((menorCarga + rango) < cargaAsignada )
+                if (cargaAsignada > mayorCargaPosible)
                 {
-                    Console.WriteLine("La linea: " + l.GetTiempoAtencion() + " se pasó del rango que era: " + menorCarga + rango);
+                    Console.WriteLine("La linea: " + l.GetTiempoAtencion() + " se pasó de la mayor carga posible que era: " + mayorCargaPosible);
                     return false;
                 }
             }
-                
+            return true;
+        }
 
+        /****************************************************************
+        Evalua si la población es buena o no                            *
+        Retorna True si la población cumple con las caracteristicas     *
+        Retorna False si la población no cumple con las caracteristicas *
+        ****************************************************************/
+        public bool Fitness(Poblacion poblacion, int generation)
+        {
+            if (generation == this.numGenerations - 1)
+            {
+                return true;
+            }
+
+            
+            // Busca la linea con menor capacidad
+            Linea lineaConMenoCapacidad = this.GetLineaConMenoCapacidad();
+            int maximoValorPorLinea = lineaConMenoCapacidad.GetTiempoAtencion();
+
+
+            // Busca si alguna linea se pasa del rango 
+            int rango = maximoValorPorLinea + 20;
+            if (this.LineasFueraDeRango(rango) == false)
+            {
+                return false;
+            }
+            
+
+            // se debe ver que cada linea esté en el rango
+            if(this.LineasenRango(rango) == false)
+            {
+                return false;
+            }
+
+
+            // Verifico la equivalencia final 
+            int mayorCargaPosible = lineaConMenoCapacidad.GetTiempoAtencion() - lineaConMenoCapacidad.GetTiempoRestante() + 20;
+            Console.WriteLine("La mayor carga es: " + mayorCargaPosible);
+            if (this.VerificarEquivalencia(mayorCargaPosible) == false)
+            {
+                return false;
+            }
 
             // Si llega aqui, es una solucion valida
             return true;
