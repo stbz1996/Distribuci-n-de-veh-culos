@@ -100,6 +100,95 @@ namespace ejemplo1
             // mutacion 
         }
 
+        /****************************************************
+        Busca la linea con menor capacidad                  *
+        *****************************************************/
+        private Linea GetLineaConMenoCapacidad()
+        {
+            IEnumerable<Linea> sorted = this.poblacion.GetLineas().OrderBy(x => (x.GetTiempoAtencion() - x.GetTiempoRestante()));
+            List<Linea> temp = new List<Linea>();
+            return sorted.ElementAt(0);
+        }
+
+
+        /****************************************************
+        Obtiene el tiempo de atencion menor en las lineas   *
+        ****************************************************/
+        private int GetTiempoatencionLineaMasPequena()
+        {
+            IEnumerable<Linea> sorted = this.poblacion.GetLineas().OrderBy(x => x.GetTiempoAtencion());
+            List<Linea> temp = new List<Linea>();
+            return sorted.ElementAt(0).GetTiempoAtencion();
+        }
+
+
+        /****************************************************
+        Busca si alguna linea se pasa del rango             *
+        ****************************************************/
+        private bool LineasFueraDeRango(int rango)
+        {
+            foreach (Linea l in this.poblacion.GetLineas())
+            {
+                // Si la linea se pasa del rango 
+                int tiempoAsignado = l.GetTiempoAtencion() - l.GetTiempoRestante();
+                if (tiempoAsignado > rango)
+                {
+                    // Hay que buscar el porqué
+                    if (l.GetNumVehiculosAsignados() > 1)
+                    {
+                        // No puede darse este caso, hay que poner la penalización 
+                        Console.WriteLine("La linea está muy llena y tiene mas de un vehiculo");
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+
+        /****************************************************
+        Verifica que cada lineas esté en el rango           *
+        ****************************************************/
+        private bool LineasEnRango(int rango)
+        {
+            foreach (Linea l in this.poblacion.GetLineas())
+            {
+                foreach (vehiculo v in this.listaEspera)
+                {
+                    // Si el vehiculo no fue asignado
+                    if (v.GetLineaAsignada() == null)
+                    {
+                        int nuevotiempoTotal = (l.GetTiempoAtencion() - l.GetTiempoRestante()) + v.GetTiempo();
+                        if (nuevotiempoTotal <= rango)
+                        {
+                            // si no se sale del rango, hay que penalizar 
+                            Console.WriteLine("Se pudo haber ingresado el vehiculo: " + v.GetId());
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+
+        /****************************************************
+        Indica si la poblacion es equivalente en las lineas *
+        ****************************************************/
+        private bool VerificarEquivalencia(int mayorCargaPosible)
+        {
+            foreach (Linea l in this.lineas)
+            {
+                int cargaAsignada = (l.GetTiempoAtencion() - l.GetTiempoRestante());
+                if (cargaAsignada > mayorCargaPosible)
+                {
+                    Console.WriteLine("La linea: " + l.GetTiempoAtencion() + " se pasó de la mayor carga posible que era: " + mayorCargaPosible);
+                    return false;
+                }
+            }
+            return true;
+        }
+
 
         /****************************************************
         Asigna los vehiculos de una poblacion a las lineas  *
@@ -110,6 +199,10 @@ namespace ejemplo1
             foreach (Linea l in poblacion.GetLineas())
             {
                 l.RestablecerTiemporestante();
+            }
+            foreach(vehiculo v in this.listaEspera)
+            {
+                v.SetLineaAsignada(null);
             }
 
             // Ordena la lista de menor a mayor segun las probabilidades del vehiculo 
@@ -161,32 +254,39 @@ namespace ejemplo1
                                 asignado = true;
                                 break;
                             }
-                            if (tempMenorLinea.GetTiempoRestante() < l.GetTiempoRestante())
+                            int tiempoAsignado = tempMenorLinea.GetTiempoAtencion() - tempMenorLinea.GetTiempoRestante();
+                            if (tiempoAsignado > (l.GetTiempoAtencion() - l.GetTiempoRestante()))
                             {
                                 tempMenorLinea = l;
                             }
                         }
-                        // si no, ver la que tenga menor carga
+                        // si no, ver la que tenga menor carga y que no sobrepase el limite 
+
                         if (asignado == false)
                         {
-                            tempVehiculo.SetLineaAsignada(tempMenorLinea); // coloca la linea al vehiculo
-                            tempMenorLinea.RestarTiempo(tempVehiculo.GetTiempo()); // resto el tiempo del vehiculo de la linea
-                            tempMenorLinea.IncrementarVehiculos();
+                            int futuroValorLinea = (tempMenorLinea.GetTiempoAtencion() - tempMenorLinea.GetTiempoRestante()) + tempVehiculo.GetTiempo();
+                            int maximoConsumo = this.GetTiempoatencionLineaMasPequena() + 20;
+                            if (futuroValorLinea <= maximoConsumo)
+                            {
+                                tempVehiculo.SetLineaAsignada(tempMenorLinea); 
+                                tempMenorLinea.RestarTiempo(tempVehiculo.GetTiempo());
+                                tempMenorLinea.IncrementarVehiculos();
+                            }
                         }
                     }
                     
-                    /*
+                    
                     Console.WriteLine("El vehiculo: " + tempVehiculo.GetId());
-                    Console.WriteLine("Puede entrar en las lineas: ");
-                    foreach (Linea l in tempLineas)
+                    if (tempVehiculo.GetLineaAsignada() != null)
                     {
-                        Console.WriteLine("Tiempo Atención--> " + l.GetTiempoAtencion());
-                        Console.WriteLine("Tiempo restante--> " + l.GetTiempoRestante());
+                        Console.WriteLine("Fué asignado en la linea: " + tempVehiculo.GetLineaAsignada().GetTiempoAtencion());
                         Console.WriteLine("#");
+                        Console.WriteLine("--------------------------------------");
                     }
-                    Console.WriteLine("--------------------------------------");
-                    Console.WriteLine("--------------------------------------");
-                    */
+                    else
+                    {
+                        Console.WriteLine("- - - > No se asignó el vehiculo ");
+                    }
                 }
             }
         }
@@ -199,45 +299,37 @@ namespace ejemplo1
         ****************************************************************/
         public bool Fitness(Poblacion poblacion, int generation)
         {
-            // Ver si se acepta o no y se le da una puntuación
+            // Busca la linea con menor capacidad
+            Linea lineaConMenoCapacidad = this.GetLineaConMenoCapacidad();
+            int maximoValorPorLinea = lineaConMenoCapacidad.GetTiempoAtencion();
 
 
-            /*  
-            500  |  300  |  30   | 100 | 50  | Tiempo total    (tt)
-            400  |  200  |  0    | 30  | 10  | Tiempo restante (tr)
-            110  |  100  |  30   | 70  | 40  | tt - tr
-            --------------------------------------------------------
-            20%  |  33%  |  100% | 70% | 80% | % de que tan llena quedó la linea 
+            // Busca si alguna linea se pasa del rango 
+            int rango = maximoValorPorLinea + 20;
+            if (this.LineasFueraDeRango(rango) == false)
+            {
+                return false;
+            }
+            
+
+            // Verifica que cada lineas esté en el rango
+            if(this.LineasEnRango(rango) == false)
+            {
+                return false;
+            }
 
 
-            CONDICIONES
-                - o se acaban los vehiculos
-                - Si la linea con menor capacidad es < que 120 
-                    - Esa lineas debe estar llena o no deben haber más vehiculos para esa linea
-                    - El maximo para las demás lineas es de 120 o el maximo de la linea si es < a 120
-                    - El minimo de las demás lineas será la capacidad de la peor linea 
-                - Si no
-                    - El maximo de las demas lineas será la capacidad de la peor linea mas un rango (20)
-        
+            // Verifico la equivalencia final 
+            int mayorCargaPosible = lineaConMenoCapacidad.GetTiempoAtencion() - lineaConMenoCapacidad.GetTiempoRestante() + 20;
+            if (this.VerificarEquivalencia(mayorCargaPosible))
+            {
+                // Si llega aqui, es una solucion valida
+                return true;
+            }
 
 
-            OPCION 2 
-            - El máximo de asignado a cada linea debe ser igual, mayor o menor a la capacidad
-              de la linea más pequeña mas un rango de 20. 
-            - Si no
-                - Se debe ver si la linea tiene mas de un vehiculo. 
-                    - si tiene mas de un vehoculo entonces se rechaza 
-            - Si se cumple lo anterior
-                - la linea mas pequeña debe estar llena o casi llena (-10 del valor total)
-                - Si no
-                    - se debe verificar si hay vehiculos que pudieron entrar ahi
-                        - si hay vehuclos que pudieron entrar entonces se rechaza 
-            - Si se cumple todo lo anterior, es una solución válida.
-
-
-             */
-
-            if (generation == this.numGenerations - 1)
+            // Si se acabaron las generaciones 
+            if (generation == this.numGenerations)
             {
                 return true;
             }
@@ -250,8 +342,6 @@ namespace ejemplo1
         ******************************************************/
         public void IniciarGenetico()
         {
-            Console.WriteLine("genetico iniciado");
-
             // Si no se ha generado la población 
             if (this.poblacion == null)
             {
@@ -267,7 +357,7 @@ namespace ejemplo1
 
                 // Asigna los vehiculos a las lineas  
                 this.AsignarVehiculosALineas(this.poblacion);
-                this.PrintPoblacion(this.poblacion);
+                //this.PrintPoblacion();
 
                 // Se calcula el fitness. Si es una solucion valida, debo parar porque ya tenemos solucion 
                 bool validSolution = this.Fitness(this.poblacion, i);
@@ -280,15 +370,7 @@ namespace ejemplo1
                 // Genera una nueva población 
                 this.AplicarOperadoresGeneticos();
             }
-            Console.WriteLine("genetico terminado");
         }
-
-
-        
-
-
-
-
 
 
         /**************************
@@ -300,7 +382,7 @@ namespace ejemplo1
             Console.WriteLine(""); Console.WriteLine(""); Console.WriteLine("");
             Console.WriteLine(""); Console.WriteLine(""); Console.WriteLine("");
             Console.WriteLine("Retorné la mejor solución");
-            this.PrintPoblacion(this.mejorPoblacion);
+            this.PrintPoblacion();
             return this.poblacion;
         }
 
@@ -313,9 +395,16 @@ namespace ejemplo1
 
 
 
+
+
+
+
+
+
         // IMPRIME UNA SOLUCION en consola
-        public void PrintPoblacion(Poblacion pob)
+        public void PrintPoblacion()
         {
+            Poblacion pob = this.poblacion;
             List<vehiculo> listaEsperaTemp = pob.GetVehiculos();
             List<Linea> lineasTemp = pob.GetLineas();
             Console.WriteLine("##############################################################");

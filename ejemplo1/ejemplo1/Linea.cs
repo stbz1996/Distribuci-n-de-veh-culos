@@ -28,6 +28,11 @@ namespace ejemplo1
             return this.tiposVehiculos;
         }
 
+        public int GetNumVehiculosAsignados()
+        {
+            return this.numVehiculosAsignados;
+        }
+
         public void IncrementarVehiculos()
         {
             this.numVehiculosAsignados += 1;
