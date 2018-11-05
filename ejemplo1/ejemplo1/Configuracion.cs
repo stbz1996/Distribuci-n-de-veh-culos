@@ -197,6 +197,20 @@ namespace ejemplo1
         }
 
 
+        // Busca la linea con menor capacidad
+        private Linea GetLineaConMenoCapacidad()
+        {
+            // Ordena la lista de menor a mayor segun las probabilidades del vehiculo 
+            IEnumerable<Linea> sorted = this.poblacion.GetLineas().OrderBy(x => (x.GetTiempoAtencion() - x.GetTiempoRestante()));
+            List<Linea> temp = new List<Linea>();
+            Console.WriteLine("@@");
+            Console.WriteLine("Menor linea es: " + sorted.ElementAt(0).GetTiempoAtencion());
+            Console.WriteLine("@@");
+
+            return sorted.ElementAt(0);
+        }
+
+
         /****************************************************************
         Evalua si la población es buena o no                            *
         Retorna True si la población cumple con las caracteristicas     *
@@ -211,14 +225,14 @@ namespace ejemplo1
 
             // Busca la linea con menor capacidad
             int maximoValorPorLinea = this.lineas.ElementAt(0).GetTiempoAtencion();
-            Linea lineaConMenoCapacidad = this.lineas.ElementAt(0);
+            Linea lineaConMenoCapacidad = this.GetLineaConMenoCapacidad();
             foreach(Linea l in this.lineas)
             {
                 int cargaActual = l.GetTiempoAtencion();
                 if (cargaActual < maximoValorPorLinea)
                 {
                     maximoValorPorLinea = cargaActual;
-                    lineaConMenoCapacidad = l;
+                    //lineaConMenoCapacidad = l;
                 }
             }
 
@@ -258,7 +272,6 @@ namespace ejemplo1
                     }
                 }
             }
-
 
             // obtengo la que se le asignó menor carga
             int menorCarga = lineaConMenoCapacidad.GetTiempoAtencion() - lineaConMenoCapacidad.GetTiempoRestante();
