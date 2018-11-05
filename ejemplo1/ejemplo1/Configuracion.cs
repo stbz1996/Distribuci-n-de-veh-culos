@@ -271,12 +271,6 @@ namespace ejemplo1
         ****************************************************************/
         public bool Fitness(Poblacion poblacion, int generation)
         {
-            if (generation == this.numGenerations - 1)
-            {
-                return true;
-            }
-
-            
             // Busca la linea con menor capacidad
             Linea lineaConMenoCapacidad = this.GetLineaConMenoCapacidad();
             int maximoValorPorLinea = lineaConMenoCapacidad.GetTiempoAtencion();
@@ -300,38 +294,19 @@ namespace ejemplo1
             // Verifico la equivalencia final 
             int mayorCargaPosible = lineaConMenoCapacidad.GetTiempoAtencion() - lineaConMenoCapacidad.GetTiempoRestante() + 20;
             Console.WriteLine("La mayor carga es: " + mayorCargaPosible);
-            if (this.VerificarEquivalencia(mayorCargaPosible) == false)
+            if (this.VerificarEquivalencia(mayorCargaPosible))
             {
-                return false;
+                // Si llega aqui, es una solucion valida
+                return true;
             }
 
-            // Si llega aqui, es una solucion valida
-            return true;
 
-           
-
-
-             
-
-           
-
-
-            /*
-            OPCION 2 
-            - El máximo de asignado a cada linea debe ser igual, mayor o menor a la capacidad
-              de la linea más pequeña mas un rango de 20. 
-            - Si no
-                - Se debe ver si la linea tiene mas de un vehiculo. 
-                    - si tiene mas de un vehoculo entonces se rechaza 
-            - Si se cumple lo anterior
-                - la linea mas pequeña debe estar llena o casi llena (-10 del valor total)
-                - Si no
-                    - se debe verificar si hay vehiculos que pudieron entrar ahi
-                        - si hay vehuclos que pudieron entrar entonces se rechaza 
-            - Si se cumple todo lo anterior, es una solución válida.
-             */
-
-          
+            // Si se acabaron las generaciones 
+            if (generation == this.numGenerations)
+            {
+                return true;
+            }
+            return false;
         }
 
 
@@ -357,7 +332,7 @@ namespace ejemplo1
 
                 // Asigna los vehiculos a las lineas  
                 this.AsignarVehiculosALineas(this.poblacion);
-                this.PrintPoblacion(this.poblacion);
+                this.PrintPoblacion();
 
                 // Se calcula el fitness. Si es una solucion valida, debo parar porque ya tenemos solucion 
                 bool validSolution = this.Fitness(this.poblacion, i);
@@ -390,7 +365,7 @@ namespace ejemplo1
             Console.WriteLine(""); Console.WriteLine(""); Console.WriteLine("");
             Console.WriteLine(""); Console.WriteLine(""); Console.WriteLine("");
             Console.WriteLine("Retorné la mejor solución");
-            this.PrintPoblacion(this.mejorPoblacion);
+            this.PrintPoblacion();
             return this.poblacion;
         }
 
@@ -404,8 +379,9 @@ namespace ejemplo1
 
 
         // IMPRIME UNA SOLUCION en consola
-        public void PrintPoblacion(Poblacion pob)
+        public void PrintPoblacion()
         {
+            Poblacion pob = this.poblacion;
             List<vehiculo> listaEsperaTemp = pob.GetVehiculos();
             List<Linea> lineasTemp = pob.GetLineas();
             Console.WriteLine("##############################################################");
